@@ -1,21 +1,18 @@
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import { Logger } from "../logger/logger";
-// import User from "../routes/user";
-const User = require("../routes/user");
+import { APILogger } from "../logger/api.logger";
+import { TaskController } from "./../controller/task.controller";
 
 class Routes {
   public express: express.Application;
-  public logger: Logger;
-
-  // array to hold users
-  users: any[];
+  public logger: APILogger;
+  public taskController: TaskController;
 
   constructor() {
     this.express = express();
     this.middleware();
     this.routes();
-    this.logger = new Logger();
+    this.logger = new APILogger();
   }
 
   // Configure Express middleware.
@@ -25,8 +22,29 @@ class Routes {
   }
 
   private routes(): void {
-    // user route
-    this.express.use("/user", User);
+    // task routes
+    this.express.get("/tasks", (req, res) => {
+      this.taskController.getTasks().then((data) => res.json(data));
+    });
+
+    this.express.post("/task", (req, res) => {
+      console.log(req.body);
+      this.taskController
+        .createTask(req.body.task)
+        .then((data) => res.json(data));
+    });
+
+    this.express.put("/task", (req, res) => {
+      this.taskController
+        .updateTask(req.body.task)
+        .then((data) => res.json(data));
+    });
+
+    this.express.delete("/task/:id", (req, res) => {
+      this.taskController
+        .deleteTask(req.params.id)
+        .then((data) => res.json(data));
+    });
   }
 }
 

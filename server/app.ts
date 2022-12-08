@@ -1,26 +1,21 @@
-import * as express from "express";
 import * as bodyParser from "body-parser";
-import { Logger } from "./logger/logger";
+import * as express from "express";
+import { APILogger } from "./logger/api.logger";
+import { TaskController } from "./controller/task.controller";
 import Routes from "./routes/routes";
 
 class App {
   public express: express.Application;
-  public logger: Logger;
-
-  // array to hold users
-  users: any[];
+  public logger: APILogger;
+  public taskController: TaskController;
 
   constructor() {
-    this.express = express();
     this.middleware();
     this.routes();
-    this.users = [
-      { firstName: "fnam1", lastName: "lnam1", userName: "username1" },
-    ];
-    this.logger = new Logger();
+    this.logger = new APILogger();
   }
 
-  // Configure Express middleware.
+  // config express middleware
   private middleware(): void {
     this.express.use(bodyParser.json());
     this.express.use(bodyParser.urlencoded({ extended: false }));
@@ -31,14 +26,13 @@ class App {
       res.send("Typescript App works!!");
     });
 
-    // user route
-    this.express.use("/api", Routes);
-
     // handle undefined routes
     this.express.use("*", (req, res, next) => {
       res.send("Make sure url is correct!!!");
     });
+
+    // task route
+    this.express.use("/api", Routes);
   }
 }
-
 export default new App().express;
